@@ -120,7 +120,10 @@ func (socket *ftpPassiveSocket) Write(p []byte) (n int, err error) {
 
 func (socket *ftpPassiveSocket) Close() error {
 	socket.logger.Print("closing passive data socket")
-	return socket.conn.Close()
+	if socket.conn != nil {
+		return socket.conn.Close()
+	}
+	return nil
 }
 
 func (socket *ftpPassiveSocket) ListenAndServe(minPort int, maxPort int) {
