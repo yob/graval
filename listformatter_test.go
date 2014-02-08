@@ -26,7 +26,7 @@ func (t *TestFileInfo) IsDir() bool {
 }
 
 func (t *TestFileInfo) ModTime() time.Time {
-	return time.Now()
+	return time.Unix(1, 0)
 }
 
 func (t *TestFileInfo) Sys() interface{} {
@@ -42,6 +42,15 @@ func TestShortFormat(t *testing.T) {
 	Convey("The Short listing format", t, func() {
 		Convey("Will display correctly", func() {
 			So(formatter.Short(), ShouldEqual, "file1.txt\r\nfile1.txt\r\n\r\n")
+		})
+	})
+}
+
+func TestDetailedFormat(t *testing.T) {
+	formatter := newListFormatter(files)
+	Convey("The Detailed listing format", t, func() {
+		Convey("Will display correctly", func() {
+			So(formatter.Detailed(), ShouldEqual, "L--------- 1 owner group           99 Jan 01 10:00 file1.txt\r\nL--------- 1 owner group           99 Jan 01 10:00 file1.txt\r\n\r\n")
 		})
 	})
 }
