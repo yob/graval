@@ -15,7 +15,7 @@ import (
 )
 
 type ftpConn struct {
-	conn             *net.TCPConn
+	conn          net.Conn
 	controlReader    *bufio.Reader
 	controlWriter    *bufio.Writer
 	dataConn         ftpDataSocket
@@ -36,7 +36,7 @@ type ftpConn struct {
 // an active net.TCPConn. The TCP connection should already be open before
 // it is handed to this functions. driver is an instance of FTPDriver that
 // will handle all auth and persistence details.
-func newftpConn(tcpConn *net.TCPConn, driver FTPDriver, serverName string, minPort int, maxPort int, pasvAdvertisedIp string) *ftpConn {
+func newftpConn(tcpConn net.Conn, driver FTPDriver, serverName string, minPort int, maxPort int, pasvAdvertisedIp string) *ftpConn {
 	c := new(ftpConn)
 	c.namePrefix = "/"
 	c.conn = tcpConn
