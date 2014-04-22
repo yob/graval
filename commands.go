@@ -3,9 +3,6 @@ package graval
 import (
 	"fmt"
 	"github.com/jehiah/go-strftime"
-	"io"
-	"io/ioutil"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -613,25 +610,11 @@ func (cmd commandStor) RequireAuth() bool {
 func (cmd commandStor) Execute(conn *ftpConn, param string) {
 	targetPath := conn.buildPath(param)
 	conn.writeMessage(150, "Data transfer starting")
-	tmpFile, err := ioutil.TempFile("", "stor")
-	if err != nil {
-		conn.writeMessage(450, "error during transfer")
-		return
-	}
-	bytes, err := io.Copy(tmpFile, conn.dataConn)
-	if err != nil {
-		conn.writeMessage(450, "error during transfer")
-		return
-	}
-	tmpFile.Seek(0, 0)
-	uploadSuccess := conn.driver.PutFile(targetPath, tmpFile)
-	tmpFile.Close()
-	os.Remove(tmpFile.Name())
-	if uploadSuccess {
-		msg := fmt.Sprintf("OK, received %d bytes", bytes)
-		conn.writeMessage(226, msg)
+	if ok := conn.driver.PutFile(targetPath, conn.dataConn); ok {
+		conn.writeMessage(226, "Transfer complete.")
 	} else {
-		conn.writeMessage(550, "Action not taken")
+		conn.writeMessage(450, "error during transfer")
+		return
 	}
 }
 
