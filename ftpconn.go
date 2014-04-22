@@ -2,6 +2,7 @@ package graval
 
 import (
 	"bufio"
+	"bytes"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
@@ -9,8 +10,8 @@ import (
 	"io"
 	"net"
 	"path/filepath"
-	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -164,12 +165,27 @@ func (ftpConn *ftpConn) buildPath(filename string) (fullPath string) {
 	return
 }
 
+// sendOutofbandData will copy data from reader to the client via the currently
+// open data socket. Assumes the socket is open and ready to be used.
+func (ftpConn *ftpConn) sendOutofbandReader(reader io.Reader) {
+	defer ftpConn.dataConn.Close()
+
+	_, err := io.Copy(ftpConn.dataConn, reader)
+
+	if err != nil {
+		ftpConn.logger.Printf("sendOutofbandReader copy error %s", err)
+		ftpConn.writeMessage(550, "Action not taken")
+		return
+	}
+
+	ftpConn.writeMessage(226, "Transfer complete.")
+
+	// Chrome dies on localhost if we close connection to soon
+	time.Sleep(10 * time.Millisecond)
+}
+
 // sendOutofbandData will send a string to the client via the currently open
 // data socket. Assumes the socket is open and ready to be used.
 func (ftpConn *ftpConn) sendOutofbandData(data string) {
-	bytes := len(data)
-	ftpConn.dataConn.Write([]byte(data))
-	ftpConn.dataConn.Close()
-	message := "Closing data connection, sent " + strconv.Itoa(bytes) + " bytes"
-	ftpConn.writeMessage(226, message)
+	ftpConn.sendOutofbandReader(bytes.NewReader([]byte(data)))
 }
