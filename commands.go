@@ -600,7 +600,7 @@ func (cmd commandStru) Execute(conn *ftpConn, param string) {
 type commandSyst struct{}
 
 func (cmd commandSyst) RequireParam() bool {
-	return true
+	return false
 }
 
 func (cmd commandSyst) RequireAuth() bool {
