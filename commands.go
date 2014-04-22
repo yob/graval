@@ -26,6 +26,7 @@ var (
 		"DELE": commandDele{},
 		"EPRT": commandEprt{},
 		"EPSV": commandEpsv{},
+		"FEAT": commandFeat{},
 		"LIST": commandList{},
 		"NLST": commandNlst{},
 		"MDTM": commandMdtm{},
@@ -188,6 +189,30 @@ func (cmd commandEpsv) Execute(conn *ftpConn, param string) {
 	}
 	msg := fmt.Sprintf("Entering Extended Passive Mode (|||%d|)", socket.Port())
 	conn.writeMessage(229, msg)
+}
+
+// commandFeat responds to the FEAT FTP command.
+//
+// List all new features supported as defined in RFC-2398.
+type commandFeat struct{}
+
+func (cmd commandFeat) RequireParam() bool {
+	return false
+}
+
+func (cmd commandFeat) RequireAuth() bool {
+	return false
+}
+
+func (cmd commandFeat) Execute(conn *ftpConn, param string) {
+	conn.writeLines(211,
+		"211-Features supported:",
+		" EPRT",
+		" EPSV",
+		" MDTM",
+		" SIZE",
+		"211 End FEAT.",
+	)
 }
 
 // commandList responds to the LIST FTP command. It allows the client to retreive
