@@ -33,6 +33,7 @@ var (
 		"MKD":  commandMkd{},
 		"MODE": commandMode{},
 		"NOOP": commandNoop{},
+		"OPTS": commandOpts{},
 		"PASS": commandPass{},
 		"PASV": commandPasv{},
 		"PORT": commandPort{},
@@ -211,6 +212,7 @@ func (cmd commandFeat) Execute(conn *ftpConn, param string) {
 		" EPSV",
 		" MDTM",
 		" SIZE",
+		" UTF8",
 		"211 End FEAT.",
 	)
 }
@@ -338,6 +340,29 @@ func (cmd commandNoop) RequireAuth() bool {
 
 func (cmd commandNoop) Execute(conn *ftpConn, param string) {
 	conn.writeMessage(200, "OK")
+}
+
+// commandOpts responds to the OPTS FTP command.
+//
+// This is essentially a ping from the client so we just respond with an
+// basic 200 message.
+type commandOpts struct{}
+
+func (cmd commandOpts) RequireParam() bool {
+	return false
+}
+
+func (cmd commandOpts) RequireAuth() bool {
+	return true
+}
+
+func (cmd commandOpts) Execute(conn *ftpConn, param string) {
+	if param == "UTF8 ON" || param == "UTF8" {
+		conn.writeMessage(200, "OK")
+		return
+	}
+
+	conn.writeMessage(500, "Command not found")
 }
 
 // commandPass respond to the PASS FTP command by asking the driver if the
