@@ -16,6 +16,9 @@ import (
 
 // serverOpts contains parameters for graval.NewFTPServer()
 type FTPServerOpts struct {
+	// Server name will be used for welcome message
+	ServerName string
+
 	// The factory that will be used to create a new FTPDriver instance for
 	// each client connection. This is a mandatory option.
 	Factory FTPDriverFactory
@@ -34,7 +37,7 @@ type FTPServerOpts struct {
 //
 // Always use the NewFTPServer() method to create a new FTPServer.
 type FTPServer struct {
-	name          string
+	serverName    string
 	listenTo      string
 	driverFactory FTPDriverFactory
 	logger        *ftpLogger
@@ -44,19 +47,29 @@ type FTPServer struct {
 // then adds any default values that are missing and returns the new data.
 func serverOptsWithDefaults(opts *FTPServerOpts) *FTPServerOpts {
 	var newOpts FTPServerOpts
+
 	if opts == nil {
 		opts = &FTPServerOpts{}
 	}
+
+	if opts.ServerName == "" {
+		newOpts.ServerName = "Go FTP Server"
+	} else {
+		newOpts.ServerName = opts.ServerName
+	}
+
 	if opts.Hostname == "" {
 		newOpts.Hostname = "::"
 	} else {
 		newOpts.Hostname = opts.Hostname
 	}
+
 	if opts.Port == 0 {
 		newOpts.Port = 3000
 	} else {
 		newOpts.Port = opts.Port
 	}
+
 	newOpts.Factory = opts.Factory
 
 	return &newOpts
@@ -83,7 +96,7 @@ func NewFTPServer(opts *FTPServerOpts) *FTPServer {
 	opts = serverOptsWithDefaults(opts)
 	s := new(FTPServer)
 	s.listenTo = buildTcpString(opts.Hostname, opts.Port)
-	s.name = "Go FTP Server"
+	s.serverName = opts.ServerName
 	s.driverFactory = opts.Factory
 	s.logger = newFtpLogger("")
 	return s
@@ -118,7 +131,7 @@ func (ftpServer *FTPServer) ListenAndServe() error {
 		if err != nil {
 			ftpServer.logger.Print("Error creating driver, aborting client connection")
 		} else {
-			ftpConn := newftpConn(tcpConn, driver)
+			ftpConn := newftpConn(tcpConn, driver, ftpServer.serverName)
 			go ftpConn.Serve()
 		}
 	}

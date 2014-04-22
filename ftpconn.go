@@ -14,10 +14,6 @@ import (
 	"time"
 )
 
-const (
-	welcomeMessage = "Welcome to the Go FTP Server"
-)
-
 type ftpConn struct {
 	conn          *net.TCPConn
 	controlReader *bufio.Reader
@@ -25,6 +21,7 @@ type ftpConn struct {
 	dataConn      ftpDataSocket
 	driver        FTPDriver
 	logger        *ftpLogger
+	serverName    string
 	sessionId     string
 	namePrefix    string
 	reqUser       string
@@ -36,7 +33,7 @@ type ftpConn struct {
 // an active net.TCPConn. The TCP connection should already be open before
 // it is handed to this functions. driver is an instance of FTPDriver that
 // will handle all auth and persistence details.
-func newftpConn(tcpConn *net.TCPConn, driver FTPDriver) *ftpConn {
+func newftpConn(tcpConn *net.TCPConn, driver FTPDriver, serverName string) *ftpConn {
 	c := new(ftpConn)
 	c.namePrefix = "/"
 	c.conn = tcpConn
@@ -45,6 +42,7 @@ func newftpConn(tcpConn *net.TCPConn, driver FTPDriver) *ftpConn {
 	c.driver = driver
 	c.sessionId = newSessionId()
 	c.logger = newFtpLogger(c.sessionId)
+	c.serverName = serverName
 	return c
 }
 
@@ -76,7 +74,7 @@ func (ftpConn *ftpConn) Serve() {
 
 	ftpConn.logger.Print("Connection Established")
 	// send welcome
-	ftpConn.writeMessage(220, welcomeMessage)
+	ftpConn.writeMessage(220, ftpConn.serverName)
 	// read commands
 	for {
 		line, err := ftpConn.controlReader.ReadString('\n')
