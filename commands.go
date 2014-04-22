@@ -72,7 +72,7 @@ func (cmd commandAllo) Execute(conn *ftpConn, param string) {
 	conn.writeMessage(202, "Obsolete")
 }
 
-// cmdCdup responds to the CDUP FTP command.
+// commandCdup responds to the CDUP FTP command.
 //
 // Allows the client change their current directory to the parent.
 type commandCdup struct{}
@@ -272,7 +272,7 @@ func (cmd commandMkd) Execute(conn *ftpConn, param string) {
 	}
 }
 
-// cmdMode responds to the MODE FTP command.
+// commandMode responds to the MODE FTP command.
 //
 // the original FTP spec had various options for hosts to negotiate how data
 // would be sent over the data socket, In reality these days (S)tream mode
@@ -296,7 +296,7 @@ func (cmd commandMode) Execute(conn *ftpConn, param string) {
 	}
 }
 
-// cmdNoop responds to the NOOP FTP command.
+// commandNoop responds to the NOOP FTP command.
 //
 // This is essentially a ping from the client so we just respond with an
 // basic 200 message.
@@ -469,7 +469,7 @@ func (cmd commandRnfr) Execute(conn *ftpConn, param string) {
 	conn.writeMessage(350, "Requested file action pending further information.")
 }
 
-// cmdRnto responds to the RNTO FTP command. It's the second of two commands
+// commandRnto responds to the RNTO FTP command. It's the second of two commands
 // required for a client to rename a file.
 type commandRnto struct{}
 
@@ -490,7 +490,7 @@ func (cmd commandRnto) Execute(conn *ftpConn, param string) {
 	}
 }
 
-// cmdRmd responds to the RMD FTP command. It allows the client to delete a
+// commandRmd responds to the RMD FTP command. It allows the client to delete a
 // directory.
 type commandRmd struct{}
 
