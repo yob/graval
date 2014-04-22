@@ -136,6 +136,15 @@ func (ftpConn *ftpConn) writeMessage(code int, message string) (wrote int, err e
 	return
 }
 
+// writeLines will send a multiline FTP response back to the client.
+func (ftpConn *ftpConn) writeLines(code int, lines ...string) (wrote int, err error) {
+	message := strings.Join(lines, "\r\n") + "\r\n"
+	ftpConn.logger.PrintResponse(code, message)
+	wrote, err = ftpConn.controlWriter.WriteString(message)
+	ftpConn.controlWriter.Flush()
+	return
+}
+
 // buildPath takes a client supplied path or filename and generates a safe
 // absolute path within their account sandbox.
 //
