@@ -30,7 +30,7 @@ type ftpActiveSocket struct {
 	logger *ftpLogger
 }
 
-func newActiveSocket(host string, port int, logger *ftpLogger) (ftpDataSocket, error) {
+func newActiveSocket(host string, port int, logger *ftpLogger) (*ftpActiveSocket, error) {
 	connectTo := buildTcpString(host, port)
 	logger.Print("Opening active data connection to " + connectTo)
 	raddr, err := net.ResolveTCPAddr("tcp", connectTo)
@@ -79,7 +79,7 @@ type ftpPassiveSocket struct {
 	logger  *ftpLogger
 }
 
-func newPassiveSocket(logger *ftpLogger) (ftpDataSocket, error) {
+func newPassiveSocket(logger *ftpLogger) (*ftpPassiveSocket, error) {
 	socket := new(ftpPassiveSocket)
 	socket.ingress = make(chan []byte)
 	socket.egress = make(chan []byte)

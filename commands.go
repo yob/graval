@@ -152,16 +152,18 @@ func (cmd commandEprt) Execute(conn *ftpConn, param string) {
 	addressFamily, err := strconv.Atoi(parts[1])
 	host := parts[2]
 	port, err := strconv.Atoi(parts[3])
+
 	if addressFamily != 1 && addressFamily != 2 {
 		conn.writeMessage(522, "Network protocol not supported, use (1,2)")
 		return
 	}
-	socket, err := newActiveSocket(host, port, conn.logger)
+
+	_, err = conn.newActiveSocket(host, port)
+
 	if err != nil {
 		conn.writeMessage(425, "Data connection failed")
 		return
 	}
-	conn.dataConn = socket
 	conn.writeMessage(200, fmt.Sprintf("Connection established (%d)", port))
 }
 
@@ -179,12 +181,11 @@ func (cmd commandEpsv) RequireAuth() bool {
 }
 
 func (cmd commandEpsv) Execute(conn *ftpConn, param string) {
-	socket, err := newPassiveSocket(conn.logger)
+	socket, err := conn.newPassiveSocket()
 	if err != nil {
 		conn.writeMessage(425, "Data connection failed")
 		return
 	}
-	conn.dataConn = socket
 	msg := fmt.Sprintf("Entering Extended Passive Mode (|||%d|)", socket.Port())
 	conn.writeMessage(229, msg)
 }
@@ -353,12 +354,12 @@ func (cmd commandPasv) RequireAuth() bool {
 }
 
 func (cmd commandPasv) Execute(conn *ftpConn, param string) {
-	socket, err := newPassiveSocket(conn.logger)
+	socket, err := conn.newPassiveSocket()
 	if err != nil {
 		conn.writeMessage(425, "Data connection failed")
 		return
 	}
-	conn.dataConn = socket
+
 	p1 := socket.Port() / 256
 	p2 := socket.Port() - (p1 * 256)
 
@@ -388,12 +389,13 @@ func (cmd commandPort) Execute(conn *ftpConn, param string) {
 	portTwo, _ := strconv.Atoi(nums[5])
 	port := (portOne * 256) + portTwo
 	host := nums[0] + "." + nums[1] + "." + nums[2] + "." + nums[3]
-	socket, err := newActiveSocket(host, port, conn.logger)
+
+	_, err := conn.newActiveSocket(host, port)
+
 	if err != nil {
 		conn.writeMessage(425, "Data connection failed")
 		return
 	}
-	conn.dataConn = socket
 	conn.writeMessage(200, fmt.Sprintf("Connection established (%d)", port))
 }
 

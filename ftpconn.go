@@ -185,3 +185,33 @@ func (ftpConn *ftpConn) sendOutofbandReader(reader io.Reader) {
 func (ftpConn *ftpConn) sendOutofbandData(data string) {
 	ftpConn.sendOutofbandReader(bytes.NewReader([]byte(data)))
 }
+
+func (ftpConn *ftpConn) newPassiveSocket() (socket *ftpPassiveSocket, err error) {
+	if ftpConn.dataConn != nil {
+		ftpConn.dataConn.Close()
+		ftpConn.dataConn = nil
+	}
+
+	socket, err = newPassiveSocket(ftpConn.logger)
+
+	if err == nil {
+		ftpConn.dataConn = socket
+	}
+
+	return
+}
+
+func (ftpConn *ftpConn) newActiveSocket(host string, port int) (socket *ftpActiveSocket, err error) {
+	if ftpConn.dataConn != nil {
+		ftpConn.dataConn.Close()
+		ftpConn.dataConn = nil
+	}
+
+	socket, err = newActiveSocket(host, port, ftpConn.logger)
+
+	if err == nil {
+		ftpConn.dataConn = socket
+	}
+
+	return
+}
