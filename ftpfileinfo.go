@@ -29,7 +29,7 @@ func (info *ftpFileInfo) ModTime() time.Time {
 }
 
 func (info *ftpFileInfo) IsDir() bool {
-	return (info.mode | os.ModeDir) == os.ModeDir
+	return (info.mode & os.ModeDir) == os.ModeDir
 }
 
 func (info *ftpFileInfo) Sys() interface{} {
