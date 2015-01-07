@@ -117,11 +117,11 @@ func (cmd commandCwd) Execute(conn *ftpConn, param string) {
 type commandDele struct{}
 
 func (cmd commandDele) RequireParam() bool {
-	return false
+	return true
 }
 
 func (cmd commandDele) RequireAuth() bool {
-	return false
+	return true
 }
 
 func (cmd commandDele) Execute(conn *ftpConn, param string) {
