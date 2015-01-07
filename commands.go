@@ -467,11 +467,11 @@ func (cmd commandRetr) Execute(conn *ftpConn, param string) {
 type commandRnfr struct{}
 
 func (cmd commandRnfr) RequireParam() bool {
-	return false
+	return true
 }
 
 func (cmd commandRnfr) RequireAuth() bool {
-	return false
+	return true
 }
 
 func (cmd commandRnfr) Execute(conn *ftpConn, param string) {
@@ -484,11 +484,11 @@ func (cmd commandRnfr) Execute(conn *ftpConn, param string) {
 type commandRnto struct{}
 
 func (cmd commandRnto) RequireParam() bool {
-	return false
+	return true
 }
 
 func (cmd commandRnto) RequireAuth() bool {
-	return false
+	return true
 }
 
 func (cmd commandRnto) Execute(conn *ftpConn, param string) {
@@ -505,11 +505,11 @@ func (cmd commandRnto) Execute(conn *ftpConn, param string) {
 type commandRmd struct{}
 
 func (cmd commandRmd) RequireParam() bool {
-	return false
+	return true
 }
 
 func (cmd commandRmd) RequireAuth() bool {
-	return false
+	return true
 }
 
 func (cmd commandRmd) Execute(conn *ftpConn, param string) {
