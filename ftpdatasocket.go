@@ -130,6 +130,7 @@ func (socket *ftpPassiveSocket) ListenAndServe(minPort int, maxPort int) {
 		socket.logger.Print(err)
 		return
 	}
+	defer listener.Close()
 	add := listener.Addr().(*net.TCPAddr)
 	socket.port = add.Port
 	tcpConn, err := listener.AcceptTCP()
