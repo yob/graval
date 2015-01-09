@@ -75,15 +75,11 @@ type ftpPassiveSocket struct {
 	conn     *net.TCPConn
 	port     int
 	listenIP string
-	ingress  chan []byte
-	egress   chan []byte
 	logger   *ftpLogger
 }
 
 func newPassiveSocket(listenIP string, logger *ftpLogger) (*ftpPassiveSocket, error) {
 	socket := new(ftpPassiveSocket)
-	socket.ingress = make(chan []byte)
-	socket.egress = make(chan []byte)
 	socket.logger = logger
 	socket.listenIP = listenIP
 	go socket.ListenAndServe()
