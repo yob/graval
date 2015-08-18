@@ -333,6 +333,8 @@ func (cmd commandPass) Execute(conn *ftpConn, param string) {
 		conn.writeMessage(230, "Password ok, continue")
 	} else {
 		conn.writeMessage(530, "Incorrect password, not logged in")
+		conn.writeMessage(221, "Goodbye.")
+		conn.Close()
 	}
 }
 
