@@ -141,6 +141,7 @@ func (ftpConn *ftpConn) writeMessage(code int, message string) (wrote int, err e
 // Obviously they MUST NOT just read the path off disk. The probably want to
 // prefix the path with something to scope the users access to a sandbox.
 func (ftpConn *ftpConn) buildPath(filename string) (fullPath string) {
+	filename = strings.Replace(filename, "\\", "/", -1)
 	if len(filename) > 0 && filename[0:1] == "/" {
 		fullPath = filepath.Clean(filename)
 	} else if len(filename) > 0 && filename != "-a" {
@@ -148,6 +149,7 @@ func (ftpConn *ftpConn) buildPath(filename string) (fullPath string) {
 	} else {
 		fullPath = filepath.Clean(ftpConn.namePrefix)
 	}
+	fullPath = strings.Replace(fullPath, "\\", "/", -1)
 	fullPath = strings.Replace(fullPath, "//", "/", -1)
 	return
 }
