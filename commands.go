@@ -162,7 +162,7 @@ func (cmd commandEprt) Execute(conn *ftpConn, param string) {
 		return
 	}
 	conn.dataConn = socket
-	conn.writeMessage(200, "Connection established ("+strconv.Itoa(port)+")")
+	conn.writeMessage(200, fmt.Sprintf("Connection established (%d)", port))
 }
 
 // commandEpsv responds to the EPSV FTP command. It allows the client to
@@ -392,7 +392,7 @@ func (cmd commandPort) Execute(conn *ftpConn, param string) {
 		return
 	}
 	conn.dataConn = socket
-	conn.writeMessage(200, "Connection established ("+strconv.Itoa(port)+")")
+	conn.writeMessage(200, fmt.Sprintf("Connection established (%d)", port))
 }
 
 // commandPwd responds to the PWD FTP command.
@@ -444,8 +444,7 @@ func (cmd commandRetr) Execute(conn *ftpConn, param string) {
 	path := conn.buildPath(param)
 	data, err := conn.driver.GetFile(path)
 	if err == nil {
-		bytes := strconv.Itoa(len(data))
-		conn.writeMessage(150, "Data transfer starting "+bytes+" bytes")
+		conn.writeMessage(150, fmt.Sprintf("Data transfer starting %d bytes", len(data)))
 		conn.sendOutofbandData(data)
 	} else {
 		conn.writeMessage(551, "File not available")
@@ -527,7 +526,7 @@ func (cmd commandSize) Execute(conn *ftpConn, param string) {
 	path := conn.buildPath(param)
 	bytes := conn.driver.Bytes(path)
 	if bytes >= 0 {
-		conn.writeMessage(213, strconv.Itoa(bytes))
+		conn.writeMessage(213, fmt.Sprintf("%d", bytes))
 	} else {
 		conn.writeMessage(450, "file not available")
 	}
@@ -563,7 +562,7 @@ func (cmd commandStor) Execute(conn *ftpConn, param string) {
 	tmpFile.Close()
 	os.Remove(tmpFile.Name())
 	if uploadSuccess {
-		msg := "OK, received " + strconv.Itoa(int(bytes)) + " bytes"
+		msg := fmt.Sprintf("OK, received %d bytes", bytes)
 		conn.writeMessage(226, msg)
 	} else {
 		conn.writeMessage(550, "Action not taken")
