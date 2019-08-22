@@ -109,6 +109,8 @@ func main() {
 	opts := &graval.FTPServerOpts{
 		Factory:    factory,
 		ServerName: "graval-mem, the in memory FTP server",
+		PasvMinPort: 60200,
+		PasvMaxPort: 60300,
 	}
 	ftpServer := graval.NewFTPServer(opts)
 	err := ftpServer.ListenAndServe()

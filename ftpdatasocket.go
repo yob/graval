@@ -2,6 +2,7 @@ package graval
 
 import (
 	"errors"
+	"fmt"
 	"net"
 	"time"
 )
@@ -78,11 +79,11 @@ type ftpPassiveSocket struct {
 	logger   *ftpLogger
 }
 
-func newPassiveSocket(listenIP string, logger *ftpLogger) (*ftpPassiveSocket, error) {
+func newPassiveSocket(listenIP string, minPort int, maxPort int, logger *ftpLogger) (*ftpPassiveSocket, error) {
 	socket := new(ftpPassiveSocket)
 	socket.logger = logger
 	socket.listenIP = listenIP
-	go socket.ListenAndServe()
+	go socket.ListenAndServe(minPort, maxPort)
 	for {
 		if socket.Port() > 0 {
 			break
@@ -122,13 +123,8 @@ func (socket *ftpPassiveSocket) Close() error {
 	return nil
 }
 
-func (socket *ftpPassiveSocket) ListenAndServe() {
-	laddr, err := net.ResolveTCPAddr("tcp", socket.Host()+":0")
-	if err != nil {
-		socket.logger.Print(err)
-		return
-	}
-	listener, err := net.ListenTCP("tcp", laddr)
+func (socket *ftpPassiveSocket) ListenAndServe(minPort int, maxPort int) {
+	listener, err := socket.netListenerInRange(minPort, maxPort)
 	if err != nil {
 		socket.logger.Print(err)
 		return
@@ -158,4 +154,16 @@ func (socket *ftpPassiveSocket) waitForOpenSocket() bool {
 		retries += 1
 	}
 	return true
+}
+
+func (socket *ftpPassiveSocket) netListenerInRange(min, max int) (*net.TCPListener, error) {
+	socket.logger.Printf("looking for new socket in range %d-%d", min, max)
+	for port := min; port <= max; port++ {
+		l, err := net.Listen("tcp", fmt.Sprintf("%s:%d", socket.Host(), port))
+		if err == nil {
+			return l.(*net.TCPListener), nil
+		}
+	}
+
+	return nil, errors.New("Unable to find available port to listen on")
 }

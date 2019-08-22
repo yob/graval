@@ -30,6 +30,14 @@ type FTPServerOpts struct {
 	// The port that the FTP should listen on. Optional, defaults to 3000. In
 	// a production environment you will probably want to change this to 21.
 	Port int
+
+	// The lower bound of port numbers that can be used for passive-mode data sockets
+	// Defaults to 0, which allows the server to pick any free port
+	PasvMinPort   int
+
+	// The upper bound of port numbers that can be used for passive-mode data sockets
+	// Defaults to 0, which allows the server to pick any free port
+	PasvMaxPort   int
 }
 
 // FTPServer is the root of your FTP application. You should instantiate one
@@ -41,6 +49,8 @@ type FTPServer struct {
 	listenTo      string
 	driverFactory FTPDriverFactory
 	logger        *ftpLogger
+	pasvMinPort   int
+	pasvMaxPort   int
 }
 
 // serverOptsWithDefaults copies an FTPServerOpts struct into a new struct,
@@ -70,6 +80,8 @@ func serverOptsWithDefaults(opts *FTPServerOpts) *FTPServerOpts {
 		newOpts.Port = opts.Port
 	}
 
+	newOpts.PasvMinPort = opts.PasvMinPort
+	newOpts.PasvMaxPort = opts.PasvMaxPort
 	newOpts.Factory = opts.Factory
 
 	return &newOpts
@@ -99,6 +111,8 @@ func NewFTPServer(opts *FTPServerOpts) *FTPServer {
 	s.serverName = opts.ServerName
 	s.driverFactory = opts.Factory
 	s.logger = newFtpLogger("")
+	s.pasvMinPort = opts.PasvMinPort
+	s.pasvMaxPort = opts.PasvMaxPort
 	return s
 }
 
@@ -131,7 +145,7 @@ func (ftpServer *FTPServer) ListenAndServe() error {
 		if err != nil {
 			ftpServer.logger.Print("Error creating driver, aborting client connection")
 		} else {
-			ftpConn := newftpConn(tcpConn, driver, ftpServer.serverName)
+			ftpConn := newftpConn(tcpConn, driver, ftpServer.serverName, ftpServer.pasvMinPort, ftpServer.pasvMaxPort)
 			go ftpConn.Serve()
 		}
 	}

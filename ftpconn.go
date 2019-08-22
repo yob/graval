@@ -27,13 +27,15 @@ type ftpConn struct {
 	reqUser       string
 	user          string
 	renameFrom    string
+	minDataPort   int
+	maxDataPort   int
 }
 
 // NewftpConn constructs a new object that will handle the FTP protocol over
 // an active net.TCPConn. The TCP connection should already be open before
 // it is handed to this functions. driver is an instance of FTPDriver that
 // will handle all auth and persistence details.
-func newftpConn(tcpConn *net.TCPConn, driver FTPDriver, serverName string) *ftpConn {
+func newftpConn(tcpConn *net.TCPConn, driver FTPDriver, serverName string, minPort int, maxPort int) *ftpConn {
 	c := new(ftpConn)
 	c.namePrefix = "/"
 	c.conn = tcpConn
@@ -43,6 +45,8 @@ func newftpConn(tcpConn *net.TCPConn, driver FTPDriver, serverName string) *ftpC
 	c.sessionId = newSessionId()
 	c.logger = newFtpLogger(c.sessionId)
 	c.serverName = serverName
+	c.minDataPort = minPort
+	c.maxDataPort = maxPort
 	return c
 }
 
@@ -203,7 +207,7 @@ func (ftpConn *ftpConn) newPassiveSocket() (socket *ftpPassiveSocket, err error)
 		ftpConn.dataConn = nil
 	}
 
-	socket, err = newPassiveSocket(ftpConn.localIP(), ftpConn.logger)
+	socket, err = newPassiveSocket(ftpConn.localIP(), ftpConn.minDataPort, ftpConn.maxDataPort, ftpConn.logger)
 
 	if err == nil {
 		ftpConn.dataConn = socket
