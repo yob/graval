@@ -1,0 +1,4 @@
+#!/bin/bash -eu
+
+go build -o bin/graval-mem ./graval-mem
+./bin/graval-mem

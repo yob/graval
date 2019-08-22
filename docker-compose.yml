@@ -1,0 +1,17 @@
+version: "3.4"
+
+services:
+  dev:
+    image: golang:1.12.8-buster
+    volumes:
+      - .:/work
+      - graval-mod:/go/pkg/mod/
+    working_dir: /work
+    command: bash
+    ports:
+      - "3000:3000"
+    environment:
+      GO111MODULE: "on"
+
+volumes:
+  graval-mod: ~
