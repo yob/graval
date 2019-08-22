@@ -3,8 +3,6 @@ package graval
 import (
 	"errors"
 	"net"
-	"strconv"
-	"strings"
 	"time"
 )
 
@@ -135,12 +133,8 @@ func (socket *ftpPassiveSocket) ListenAndServe() {
 		socket.logger.Print(err)
 		return
 	}
-	add   := listener.Addr()
-	parts := strings.Split(add.String(), ":")
-	port, err := strconv.Atoi(parts[1])
-	if err == nil {
-		socket.port = port
-	}
+	add   := listener.Addr().(*net.TCPAddr)
+	socket.port = add.Port
 	tcpConn, err := listener.AcceptTCP()
 	if err != nil {
 		socket.logger.Print(err)
