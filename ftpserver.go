@@ -106,6 +106,8 @@ func (ftpServer *FTPServer) ListenAndServe() error {
 	if err != nil {
 		return err
 	}
+	ftpServer.logger.Printf("listening on %s", listener.Addr().String())
+
 	for {
 		tcpConn, err := listener.AcceptTCP()
 		if err != nil {
