@@ -18,23 +18,23 @@ import (
 type FTPServerOpts struct {
 	// The factory that will be used to create a new FTPDriver instance for
 	// each client connection. This is a mandatory option.
-	Factory   FTPDriverFactory
+	Factory FTPDriverFactory
 
 	// The hostname that the FTP server should listen on. Optional, defaults to
 	// "::", which means all hostnames on ipv4 and ipv6.
-	Hostname  string
+	Hostname string
 
 	// The port that the FTP should listen on. Optional, defaults to 3000. In
 	// a production environment you will probably want to change this to 21.
-	Port      int
+	Port int
 
 	// The lower bound of port numbers that can be used for passive-mode data sockets
 	// Defaults to 0, which allows the server to pick any free port
-	MinDataPort   int
+	MinDataPort int
 
 	// The upper bound of port numbers that can be used for passive-mode data sockets
 	// Defaults to 0, which allows the server to pick any free port
-	MaxDataPort   int
+	MaxDataPort int
 }
 
 // FTPServer is the root of your FTP application. You should instantiate one
@@ -143,16 +143,16 @@ func buildTcpString(hostname string, port int) (result string) {
 	if strings.Contains(hostname, ":") {
 		// ipv6
 		if port == 0 {
-			result = "["+hostname+"]"
+			result = "[" + hostname + "]"
 		} else {
-			result = "["+hostname +"]:" + strconv.Itoa(port)
+			result = "[" + hostname + "]:" + strconv.Itoa(port)
 		}
 	} else {
 		// ipv4
 		if port == 0 {
 			result = hostname
 		} else {
-			result = hostname +":" + strconv.Itoa(port)
+			result = hostname + ":" + strconv.Itoa(port)
 		}
 	}
 	return

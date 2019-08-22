@@ -6,9 +6,9 @@ import (
 )
 
 type ftpFileInfo struct {
-	name      string
-	bytes     int64
-	mode      os.FileMode
+	name  string
+	bytes int64
+	mode  os.FileMode
 }
 
 func (info *ftpFileInfo) Name() string {

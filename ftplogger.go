@@ -7,7 +7,7 @@ import (
 
 // Use an instance of this to log in a standard format
 type ftpLogger struct {
-	sessionId  string
+	sessionId string
 }
 
 func newFtpLogger(id string) *ftpLogger {
