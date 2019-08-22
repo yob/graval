@@ -179,7 +179,7 @@ func (cmd commandEpsv) RequireAuth() bool {
 }
 
 func (cmd commandEpsv) Execute(conn *ftpConn, param string) {
-	socket, err := newPassiveSocket(conn.logger)
+	socket, err := newPassiveSocket(conn.logger, conn.minDataPort, conn.maxDataPort)
 	if err != nil {
 		conn.writeMessage(425, "Data connection failed")
 		return
@@ -351,7 +351,7 @@ func (cmd commandPasv) RequireAuth() bool {
 }
 
 func (cmd commandPasv) Execute(conn *ftpConn, param string) {
-	socket, err := newPassiveSocket(conn.logger)
+	socket, err := newPassiveSocket(conn.logger, conn.minDataPort, conn.maxDataPort)
 	if err != nil {
 		conn.writeMessage(425, "Data connection failed")
 		return
