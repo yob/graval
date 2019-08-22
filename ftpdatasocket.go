@@ -153,7 +153,8 @@ func (socket *ftpPassiveSocket) waitForOpenSocket() bool {
 			return false
 		}
 		socket.logger.Print("sleeping, socket isn't open")
-		time.Sleep(500 * time.Millisecond)
+		sleepMs := time.Duration(500 * (retries+1))
+		time.Sleep(sleepMs *time.Millisecond)
 		retries += 1
 	}
 	return true
