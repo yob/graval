@@ -1,3 +1,4 @@
 #!/bin/bash -eu
 
-$(dirname $0)/with-golang scripts/run-mem
+$(dirname $0)/with-golang go build -o bin/graval-mem ./graval-mem
+./bin/graval-mem
