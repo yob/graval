@@ -26,7 +26,7 @@ type FTPServerOpts struct {
 
 	// The port that the FTP should listen on. Optional, defaults to 3000. In
 	// a production environment you will probably want to change this to 21.
-	Port      int
+	Port int
 }
 
 // FTPServer is the root of your FTP application. You should instantiate one

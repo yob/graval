@@ -161,4 +161,3 @@ func (socket *ftpPassiveSocket) waitForOpenSocket() bool {
 	}
 	return true
 }
-
