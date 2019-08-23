@@ -1,0 +1,3 @@
+#!/bin/bash -eu
+
+$(dirname $0)/with-golang go fmt ./...
