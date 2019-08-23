@@ -10,7 +10,6 @@ services:
     command: bash
     ports:
       - "3000:3000"
-      - "60200-60300:60200-60300"
     environment:
       GO111MODULE: "on"
 
