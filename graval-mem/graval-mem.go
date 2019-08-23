@@ -38,13 +38,13 @@ type MemDriver struct{}
 func (driver *MemDriver) Authenticate(user string, pass string) bool {
 	return user == "test" && pass == "1234"
 }
-func (driver *MemDriver) Bytes(path string) (bytes int) {
+func (driver *MemDriver) Bytes(path string) (bytes int64) {
 	switch path {
 	case "/one.txt":
-		bytes = len(fileOne)
+		bytes = int64(len(fileOne))
 		break
 	case "/files/two.txt":
-		bytes = len(fileTwo)
+		bytes = int64(len(fileTwo))
 		break
 	default:
 		bytes = -1

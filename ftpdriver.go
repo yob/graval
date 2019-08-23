@@ -23,7 +23,7 @@ type FTPDriver interface {
 	// params  - a file path
 	// returns - an int with the number of bytes in the file or -1 if the file
 	//           doesn't exist
-	Bytes(string) int
+	Bytes(string) int64
 
 	// params  - a file path
 	// returns - a time indicating when the requested path was last modified
