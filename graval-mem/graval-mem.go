@@ -16,8 +16,10 @@ package main
 import (
 	"github.com/yob/graval"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -79,12 +81,12 @@ func (driver *MemDriver) Rename(fromPath string, toPath string) bool {
 func (driver *MemDriver) MakeDir(path string) bool {
 	return false
 }
-func (driver *MemDriver) GetFile(path string) (data string, err error) {
+func (driver *MemDriver) GetFile(path string) (reader io.ReadCloser, err error) {
 	switch path {
 	case "/one.txt":
-		data = fileOne
+		reader = ioutil.NopCloser(strings.NewReader(fileOne))
 	case "/files/two.txt":
-		data = fileTwo
+		reader = ioutil.NopCloser(strings.NewReader(fileTwo))
 	}
 	return
 }
