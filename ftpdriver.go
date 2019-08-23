@@ -58,8 +58,8 @@ type FTPDriver interface {
 	MakeDir(string) bool
 
 	// params  - path
-	// returns - a string containing the file data to send to the client
-	GetFile(string) (string, error)
+	// returns - a Reader that will return file data to send to the client
+	GetFile(string) (io.ReadCloser, error)
 
 	// params  - desination path, an io.Reader containing the file data
 	// returns - true if the data was successfully persisted

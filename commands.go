@@ -444,10 +444,11 @@ func (cmd commandRetr) RequireAuth() bool {
 
 func (cmd commandRetr) Execute(conn *ftpConn, param string) {
 	path := conn.buildPath(param)
-	data, err := conn.driver.GetFile(path)
+	reader, err := conn.driver.GetFile(path)
 	if err == nil {
-		conn.writeMessage(150, fmt.Sprintf("Data transfer starting %d bytes", len(data)))
-		conn.sendOutofbandData(data)
+		defer reader.Close()
+		conn.writeMessage(150, "Data connection open. Transfer starting.")
+		conn.sendOutofbandReader(reader)
 	} else {
 		conn.writeMessage(551, "File not available")
 	}
