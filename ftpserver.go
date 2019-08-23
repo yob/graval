@@ -33,11 +33,17 @@ type FTPServerOpts struct {
 
 	// The lower bound of port numbers that can be used for passive-mode data sockets
 	// Defaults to 0, which allows the server to pick any free port
-	PasvMinPort   int
+	PasvMinPort int
 
 	// The upper bound of port numbers that can be used for passive-mode data sockets
 	// Defaults to 0, which allows the server to pick any free port
-	PasvMaxPort   int
+	PasvMaxPort int
+
+	// Use this option to override the IP address that will be advertised in response to the
+	// PASV command. Most setups can ignore this, but it can be helpful in situations where
+	// the FTP server is behind a NAT gateway or load balancer and the public IP used by
+	// clients is different to the IP the server is directly listening on
+	PasvAdvertisedIp string
 }
 
 // FTPServer is the root of your FTP application. You should instantiate one
@@ -45,12 +51,13 @@ type FTPServerOpts struct {
 //
 // Always use the NewFTPServer() method to create a new FTPServer.
 type FTPServer struct {
-	serverName    string
-	listenTo      string
-	driverFactory FTPDriverFactory
-	logger        *ftpLogger
-	pasvMinPort   int
-	pasvMaxPort   int
+	serverName       string
+	listenTo         string
+	driverFactory    FTPDriverFactory
+	logger           *ftpLogger
+	pasvMinPort      int
+	pasvMaxPort      int
+	pasvAdvertisedIp string
 }
 
 // serverOptsWithDefaults copies an FTPServerOpts struct into a new struct,
@@ -82,6 +89,7 @@ func serverOptsWithDefaults(opts *FTPServerOpts) *FTPServerOpts {
 
 	newOpts.PasvMinPort = opts.PasvMinPort
 	newOpts.PasvMaxPort = opts.PasvMaxPort
+	newOpts.PasvAdvertisedIp = opts.PasvAdvertisedIp
 	newOpts.Factory = opts.Factory
 
 	return &newOpts
@@ -113,6 +121,7 @@ func NewFTPServer(opts *FTPServerOpts) *FTPServer {
 	s.logger = newFtpLogger("")
 	s.pasvMinPort = opts.PasvMinPort
 	s.pasvMaxPort = opts.PasvMaxPort
+	s.pasvAdvertisedIp = opts.PasvAdvertisedIp
 	return s
 }
 
@@ -145,7 +154,7 @@ func (ftpServer *FTPServer) ListenAndServe() error {
 		if err != nil {
 			ftpServer.logger.Print("Error creating driver, aborting client connection")
 		} else {
-			ftpConn := newftpConn(tcpConn, driver, ftpServer.serverName, ftpServer.pasvMinPort, ftpServer.pasvMaxPort)
+			ftpConn := newftpConn(tcpConn, driver, ftpServer.serverName, ftpServer.pasvMinPort, ftpServer.pasvMaxPort, ftpServer.pasvAdvertisedIp)
 			go ftpConn.Serve()
 		}
 	}

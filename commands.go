@@ -363,7 +363,13 @@ func (cmd commandPasv) Execute(conn *ftpConn, param string) {
 	p1 := socket.Port() / 256
 	p2 := socket.Port() - (p1 * 256)
 
-	quads := strings.Split(socket.Host(), ".")
+	// if the server has been configured to send a specific IP for clients to connect to, use it. Otherwise
+	// fallback to the IP that the passive port is listening on
+	host := conn.pasvAdvertisedIp
+	if host == "" {
+		host = socket.Host()
+	}
+	quads := strings.Split(host, ".")
 	target := fmt.Sprintf("(%s,%s,%s,%s,%d,%d)", quads[0], quads[1], quads[2], quads[3], p1, p2)
 	msg := "Entering Passive Mode " + target
 	conn.writeMessage(227, msg)
