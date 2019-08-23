@@ -4,4 +4,4 @@
 
 cd $(dirname $0)/..
 
-docker-compose run --rm --service-ports dev "${@-sh}"
+docker-compose run --rm dev "${@-sh}"
