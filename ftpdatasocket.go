@@ -3,6 +3,7 @@ package graval
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"net"
 	"time"
 )
@@ -157,13 +158,20 @@ func (socket *ftpPassiveSocket) waitForOpenSocket() bool {
 }
 
 func (socket *ftpPassiveSocket) netListenerInRange(min, max int) (*net.TCPListener, error) {
-	socket.logger.Printf("looking for new socket in range %d-%d", min, max)
-	for port := min; port <= max; port++ {
+	for retries := 1; retries < 100; retries++ {
+		port := randomPort(min, max)
 		l, err := net.Listen("tcp", fmt.Sprintf("%s:%d", socket.Host(), port))
 		if err == nil {
 			return l.(*net.TCPListener), nil
 		}
 	}
-
 	return nil, errors.New("Unable to find available port to listen on")
+}
+
+func randomPort(min, max int) int {
+	if min == 0 && max == 0 {
+		return 0
+	} else {
+		return min + rand.Intn(max-min-1)
+	}
 }
