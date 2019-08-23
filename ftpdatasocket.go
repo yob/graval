@@ -72,18 +72,20 @@ func (socket *ftpActiveSocket) Close() error {
 }
 
 type ftpPassiveSocket struct {
-	conn    *net.TCPConn
-	port    int
-	ingress chan []byte
-	egress  chan []byte
-	logger  *ftpLogger
+	conn     *net.TCPConn
+	port     int
+	listenIP string
+	ingress  chan []byte
+	egress   chan []byte
+	logger   *ftpLogger
 }
 
-func newPassiveSocket(logger *ftpLogger) (*ftpPassiveSocket, error) {
+func newPassiveSocket(listenIP string, logger *ftpLogger) (*ftpPassiveSocket, error) {
 	socket := new(ftpPassiveSocket)
 	socket.ingress = make(chan []byte)
 	socket.egress = make(chan []byte)
 	socket.logger = logger
+	socket.listenIP = listenIP
 	go socket.ListenAndServe()
 	for {
 		if socket.Port() > 0 {
@@ -95,7 +97,7 @@ func newPassiveSocket(logger *ftpLogger) (*ftpPassiveSocket, error) {
 }
 
 func (socket *ftpPassiveSocket) Host() string {
-	return "127.0.0.1"
+	return socket.listenIP
 }
 
 func (socket *ftpPassiveSocket) Port() int {

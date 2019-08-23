@@ -72,7 +72,7 @@ func (ftpConn *ftpConn) Serve() {
 		ftpConn.Close()
 	}()
 
-	ftpConn.logger.Print("Connection Established")
+	ftpConn.logger.Printf("Connection Established (local: %s, remote: %s)", ftpConn.localIP(), ftpConn.remoteIP())
 	// send welcome
 	ftpConn.writeMessage(220, ftpConn.serverName)
 	// read commands
@@ -159,6 +159,19 @@ func (ftpConn *ftpConn) buildPath(filename string) (fullPath string) {
 	return
 }
 
+// the server IP that is being used for this connection. May be the same for all connections,
+// or may vary if the server is listening on 0.0.0.0
+func (ftpConn *ftpConn) localIP() string {
+	lAddr := ftpConn.conn.LocalAddr().(*net.TCPAddr)
+	return lAddr.IP.String()
+}
+
+// the client IP address
+func (ftpConn *ftpConn) remoteIP() string {
+	rAddr := ftpConn.conn.RemoteAddr().(*net.TCPAddr)
+	return rAddr.IP.String()
+}
+
 // sendOutofbandData will copy data from reader to the client via the currently
 // open data socket. Assumes the socket is open and ready to be used.
 func (ftpConn *ftpConn) sendOutofbandReader(reader io.Reader) {
@@ -190,7 +203,7 @@ func (ftpConn *ftpConn) newPassiveSocket() (socket *ftpPassiveSocket, err error)
 		ftpConn.dataConn = nil
 	}
 
-	socket, err = newPassiveSocket(ftpConn.logger)
+	socket, err = newPassiveSocket(ftpConn.localIP(), ftpConn.logger)
 
 	if err == nil {
 		ftpConn.dataConn = socket
