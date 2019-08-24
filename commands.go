@@ -614,7 +614,6 @@ func (cmd commandStor) Execute(conn *ftpConn, param string) {
 		conn.writeMessage(226, "Transfer complete.")
 	} else {
 		conn.writeMessage(450, "error during transfer")
-		return
 	}
 }
 
