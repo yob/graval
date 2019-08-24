@@ -62,9 +62,9 @@ func (driver *MemDriver) DirContents(path string) (files []os.FileInfo) {
 	switch path {
 	case "/":
 		files = append(files, graval.NewDirItem("files"))
-		files = append(files, graval.NewFileItem("one.txt", len(fileOne)))
+		files = append(files, graval.NewFileItem("one.txt", int64(len(fileOne)), time.Now()))
 	case "/files":
-		files = append(files, graval.NewFileItem("two.txt", len(fileOne)))
+		files = append(files, graval.NewFileItem("two.txt", int64(len(fileOne)), time.Now()))
 	}
 	return files
 }
