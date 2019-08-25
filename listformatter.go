@@ -36,7 +36,7 @@ func (formatter *listFormatter) Detailed() string {
 		output += file.Mode().String()
 		output += " 1 owner group "
 		output += lpad(strconv.Itoa(int(file.Size())), 12)
-		output += " " + strftime.Format("%b %d %H:%M", file.ModTime())
+		output += " " + strftime.Format("%b %d %H:%M", file.ModTime().UTC())
 		output += " " + file.Name()
 		output += "\r\n"
 	}

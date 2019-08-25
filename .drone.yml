@@ -1,0 +1,12 @@
+image: go1.2
+env:
+  - GOPATH=/var/cache/drone
+script:
+  - go get -t
+  - go build
+  - go test -v
+
+notify:
+  email:
+    recipients:
+      - paul@vdvreede.net
