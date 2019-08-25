@@ -165,7 +165,7 @@ func (ftpConn *ftpConn) writeLines(code int, lines ...string) (wrote int, err er
 func (ftpConn *ftpConn) buildPath(filename string) (fullPath string) {
 	if len(filename) > 0 && filename[0:1] == "/" {
 		fullPath = filepath.Clean(filename)
-	} else if len(filename) > 0 && filename != "-a" {
+	} else if len(filename) > 0 {
 		fullPath = filepath.Clean(ftpConn.namePrefix + "/" + filename)
 	} else {
 		fullPath = filepath.Clean(ftpConn.namePrefix)

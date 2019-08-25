@@ -3,6 +3,7 @@ package graval
 import (
 	"fmt"
 	"github.com/jehiah/go-strftime"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -51,6 +52,10 @@ var (
 		"XPWD": commandPwd{},
 		"XRMD": commandRmd{},
 	}
+
+	// Some FTP clients send flags to the LIST and NLST commands. Server support for these varies,
+	// and implementing them all would be a lot of work with uncertain payoff. For now, we ignore them
+	listFlagsRegexp = `^-[alt]+$`
 )
 
 // commandAllo responds to the ALLO FTP command.
@@ -228,6 +233,10 @@ func (cmd commandList) RequireAuth() bool {
 
 func (cmd commandList) Execute(conn *ftpConn, param string) {
 	conn.writeMessage(150, "Opening ASCII mode data connection for file list")
+	matched, _ := regexp.MatchString(listFlagsRegexp, param)
+	if matched {
+		param = ""
+	}
 	path := conn.buildPath(param)
 	files := conn.driver.DirContents(path)
 	formatter := newListFormatter(files)
@@ -248,6 +257,10 @@ func (cmd commandNlst) RequireAuth() bool {
 
 func (cmd commandNlst) Execute(conn *ftpConn, param string) {
 	conn.writeMessage(150, "Opening ASCII mode data connection for file list")
+	matched, _ := regexp.MatchString(listFlagsRegexp, param)
+	if matched {
+		param = ""
+	}
 	path := conn.buildPath(param)
 	files := conn.driver.DirContents(path)
 	formatter := newListFormatter(files)
