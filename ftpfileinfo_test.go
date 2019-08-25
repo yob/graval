@@ -8,10 +8,11 @@ import (
 )
 
 func TestNewDirInfo(t *testing.T) {
-	dirInfo := NewDirItem("dir")
+	modTime := time.Unix(1566738000, 0) // 2019-08-25 13:00:00 UTC
+	dirInfo := NewDirItem("dir", modTime)
 	Convey("New Directory Info", t, func() {
 		Convey("Will display the correct Mode", func() {
-			So(dirInfo.Mode(), ShouldEqual, os.ModeDir|666)
+			So(dirInfo.Mode(), ShouldEqual, os.ModeDir|0666)
 		})
 
 		Convey("Will display the correct Name", func() {
@@ -23,8 +24,7 @@ func TestNewDirInfo(t *testing.T) {
 		})
 
 		Convey("Will display modified date as current time", func() {
-			beforeTime := time.Now()
-			So(dirInfo.ModTime(), ShouldHappenBetween, beforeTime, time.Now())
+			So(dirInfo.ModTime(), ShouldEqual, modTime)
 		})
 
 		Convey("Will return nil for Sys", func() {
@@ -34,10 +34,11 @@ func TestNewDirInfo(t *testing.T) {
 }
 
 func TestNewFileInfo(t *testing.T) {
-	dirInfo := NewFileItem("test.txt", 99)
+	modTime := time.Unix(1566738000, 0) // 2019-08-25 13:00:00 UTC
+	dirInfo := NewFileItem("test.txt", int64(99), modTime)
 	Convey("New File Info", t, func() {
 		Convey("Will display the correct Mode", func() {
-			So(dirInfo.Mode(), ShouldEqual, 666)
+			So(dirInfo.Mode(), ShouldEqual, 0666)
 		})
 
 		Convey("Will display the correct Name", func() {
@@ -49,8 +50,7 @@ func TestNewFileInfo(t *testing.T) {
 		})
 
 		Convey("Will display modified date as current time", func() {
-			beforeTime := time.Now()
-			So(dirInfo.ModTime(), ShouldHappenBetween, beforeTime, time.Now())
+			So(dirInfo.ModTime(), ShouldEqual, modTime)
 		})
 
 		Convey("Will return nil for Sys", func() {

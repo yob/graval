@@ -50,7 +50,7 @@ func TestDetailedFormat(t *testing.T) {
 	formatter := newListFormatter(files)
 	Convey("The Detailed listing format", t, func() {
 		Convey("Will display correctly", func() {
-			So(formatter.Detailed(), ShouldEqual, "L--------- 1 owner group           99 Jan 01 10:00 file1.txt\r\nL--------- 1 owner group           99 Jan 01 10:00 file1.txt\r\n\r\n")
+			So(formatter.Detailed(), ShouldEqual, "L--------- 1 owner group           99 Jan 01 00:00 file1.txt\r\nL--------- 1 owner group           99 Jan 01 00:00 file1.txt\r\n\r\n")
 		})
 	})
 }
