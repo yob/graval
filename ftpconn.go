@@ -15,7 +15,7 @@ import (
 )
 
 type ftpConn struct {
-	conn          net.Conn
+	conn             net.Conn
 	controlReader    *bufio.Reader
 	controlWriter    *bufio.Writer
 	dataConn         ftpDataSocket
