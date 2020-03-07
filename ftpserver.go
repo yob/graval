@@ -12,6 +12,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // serverOpts contains parameters for graval.NewFTPServer()
@@ -58,6 +59,7 @@ type FTPServer struct {
 	pasvMinPort      int
 	pasvMaxPort      int
 	pasvAdvertisedIp string
+	closeChan        chan struct{}
 }
 
 // serverOptsWithDefaults copies an FTPServerOpts struct into a new struct,
@@ -122,6 +124,7 @@ func NewFTPServer(opts *FTPServerOpts) *FTPServer {
 	s.pasvMinPort = opts.PasvMinPort
 	s.pasvMaxPort = opts.PasvMaxPort
 	s.pasvAdvertisedIp = opts.PasvAdvertisedIp
+	s.closeChan = make(chan struct{})
 	return s
 }
 
@@ -144,21 +147,37 @@ func (ftpServer *FTPServer) ListenAndServe() error {
 	}
 	ftpServer.logger.Printf("listening on %s", listener.Addr().String())
 
+	listener.SetDeadline(time.Now().Add(5 * time.Second))
 	for {
-		tcpConn, err := listener.AcceptTCP()
-		if err != nil {
-			ftpServer.logger.Print("listening error")
-			break
-		}
-		driver, err := ftpServer.driverFactory.NewDriver()
-		if err != nil {
-			ftpServer.logger.Print("Error creating driver, aborting client connection")
-		} else {
-			ftpConn := newftpConn(tcpConn, driver, ftpServer.serverName, ftpServer.pasvMinPort, ftpServer.pasvMaxPort, ftpServer.pasvAdvertisedIp)
-			go ftpConn.Serve()
+		select {
+		case <-ftpServer.closeChan:
+			listener.Close()
+			return nil
+		default:
+			tcpConn, err := listener.AcceptTCP()
+			if err != nil {
+				ftpServer.logger.Print("listening error")
+				break
+			}
+			driver, err := ftpServer.driverFactory.NewDriver()
+			if err != nil {
+				ftpServer.logger.Print("Error creating driver, aborting client connection")
+			} else {
+				ftpConn := newftpConn(tcpConn, driver, ftpServer.serverName, ftpServer.pasvMinPort, ftpServer.pasvMaxPort, ftpServer.pasvAdvertisedIp)
+				go ftpConn.Serve()
+			}
 		}
 	}
 	return nil
+}
+
+func (ftpServer *FTPServer) Close() {
+	select {
+	case <-ftpServer.closeChan:
+	// already closed
+	default:
+		close(ftpServer.closeChan)
+	}
 }
 
 func buildTcpString(hostname string, port int) (result string) {
