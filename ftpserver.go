@@ -178,6 +178,7 @@ func (ftpServer *FTPServer) ListenAndServe() error {
 	return nil
 }
 
+// Close signals the server to stop. It may take a couple of seconds. Do not call ListenAndServe again after this, build a new FTPServer.
 func (ftpServer *FTPServer) Close() {
 	select {
 	case <-ftpServer.closeChan:
