@@ -147,18 +147,24 @@ func (ftpServer *FTPServer) ListenAndServe() error {
 	}
 	ftpServer.logger.Printf("listening on %s", listener.Addr().String())
 
-	listener.SetDeadline(time.Now().Add(5 * time.Second))
 	for {
 		select {
 		case <-ftpServer.closeChan:
 			listener.Close()
 			return nil
 		default:
+			listener.SetDeadline(time.Now().Add(2 * time.Second))
 			tcpConn, err := listener.AcceptTCP()
-			if err != nil {
-				ftpServer.logger.Print("listening error")
-				break
+			if strings.HasSuffix(err.Error(), "i/o timeout") {
+				// deadline reached, no big deal
+				// NOTE: This error is passed from the internal/poll/ErrTimeout but that
+				// package is not legal to include, hence the string match. :(
+				continue
+			} else if err != nil {
+				ftpServer.logger.Printf("listening error: %+v", err)
+				return err
 			}
+
 			driver, err := ftpServer.driverFactory.NewDriver()
 			if err != nil {
 				ftpServer.logger.Print("Error creating driver, aborting client connection")
@@ -166,6 +172,7 @@ func (ftpServer *FTPServer) ListenAndServe() error {
 				ftpConn := newftpConn(tcpConn, driver, ftpServer.serverName, ftpServer.pasvMinPort, ftpServer.pasvMaxPort, ftpServer.pasvAdvertisedIp)
 				go ftpConn.Serve()
 			}
+
 		}
 	}
 	return nil
