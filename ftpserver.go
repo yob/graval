@@ -155,7 +155,7 @@ func (ftpServer *FTPServer) ListenAndServe() error {
 		default:
 			listener.SetDeadline(time.Now().Add(2 * time.Second))
 			tcpConn, err := listener.AcceptTCP()
-			if strings.HasSuffix(err.Error(), "i/o timeout") {
+			if err != nil && strings.HasSuffix(err.Error(), "i/o timeout") {
 				// deadline reached, no big deal
 				// NOTE: This error is passed from the internal/poll/ErrTimeout but that
 				// package is not legal to include, hence the string match. :(
