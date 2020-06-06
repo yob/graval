@@ -116,15 +116,15 @@ func main() {
 	}
 	ftpServer := graval.NewFTPServer(opts)
 
-    c := make(chan os.Signal)
-    signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-    signal.Notify(c, os.Interrupt, syscall.SIGQUIT)
-    go func() {
-        <-c
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	signal.Notify(c, os.Interrupt, syscall.SIGQUIT)
+	go func() {
+		<-c
 		log.Println("Exiting...")
-        ftpServer.Close()
-        os.Exit(1)
-    }()
+		ftpServer.Close()
+		os.Exit(1)
+	}()
 
 	err := ftpServer.ListenAndServe()
 	if err != nil {
