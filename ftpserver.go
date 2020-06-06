@@ -12,6 +12,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // serverOpts contains parameters for graval.NewFTPServer()
@@ -58,6 +59,7 @@ type FTPServer struct {
 	pasvMinPort      int
 	pasvMaxPort      int
 	pasvAdvertisedIp string
+	closeChan        chan struct{}
 }
 
 // serverOptsWithDefaults copies an FTPServerOpts struct into a new struct,
@@ -122,6 +124,7 @@ func NewFTPServer(opts *FTPServerOpts) *FTPServer {
 	s.pasvMinPort = opts.PasvMinPort
 	s.pasvMaxPort = opts.PasvMaxPort
 	s.pasvAdvertisedIp = opts.PasvAdvertisedIp
+	s.closeChan = make(chan struct{})
 	return s
 }
 
@@ -145,20 +148,44 @@ func (ftpServer *FTPServer) ListenAndServe() error {
 	ftpServer.logger.Printf("listening on %s", listener.Addr().String())
 
 	for {
-		tcpConn, err := listener.AcceptTCP()
-		if err != nil {
-			ftpServer.logger.Print("listening error")
-			break
-		}
-		driver, err := ftpServer.driverFactory.NewDriver()
-		if err != nil {
-			ftpServer.logger.Print("Error creating driver, aborting client connection")
-		} else {
-			ftpConn := newftpConn(tcpConn, driver, ftpServer.serverName, ftpServer.pasvMinPort, ftpServer.pasvMaxPort, ftpServer.pasvAdvertisedIp)
-			go ftpConn.Serve()
+		select {
+		case <-ftpServer.closeChan:
+			listener.Close()
+			return nil
+		default:
+			listener.SetDeadline(time.Now().Add(2 * time.Second))
+			tcpConn, err := listener.AcceptTCP()
+			if err != nil && strings.HasSuffix(err.Error(), "i/o timeout") {
+				// deadline reached, no big deal
+				// NOTE: This error is passed from the internal/poll/ErrTimeout but that
+				// package is not legal to include, hence the string match. :(
+				continue
+			} else if err != nil {
+				ftpServer.logger.Printf("listening error: %+v", err)
+				return err
+			}
+
+			driver, err := ftpServer.driverFactory.NewDriver()
+			if err != nil {
+				ftpServer.logger.Print("Error creating driver, aborting client connection")
+			} else {
+				ftpConn := newftpConn(tcpConn, driver, ftpServer.serverName, ftpServer.pasvMinPort, ftpServer.pasvMaxPort, ftpServer.pasvAdvertisedIp)
+				go ftpConn.Serve()
+			}
+
 		}
 	}
 	return nil
+}
+
+// Close signals the server to stop. It may take a couple of seconds. Do not call ListenAndServe again after this, build a new FTPServer.
+func (ftpServer *FTPServer) Close() {
+	select {
+	case <-ftpServer.closeChan:
+	// already closed
+	default:
+		close(ftpServer.closeChan)
+	}
 }
 
 func buildTcpString(hostname string, port int) (result string) {
