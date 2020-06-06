@@ -19,7 +19,9 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -113,6 +115,17 @@ func main() {
 		PasvMaxPort: 60300,
 	}
 	ftpServer := graval.NewFTPServer(opts)
+
+    c := make(chan os.Signal)
+    signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+    signal.Notify(c, os.Interrupt, syscall.SIGQUIT)
+    go func() {
+        <-c
+		log.Println("Exiting...")
+        ftpServer.Close()
+        os.Exit(1)
+    }()
+
 	err := ftpServer.ListenAndServe()
 	if err != nil {
 		log.Print(err)
