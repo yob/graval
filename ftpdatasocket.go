@@ -2,9 +2,9 @@ package graval
 
 import (
 	"errors"
-	"fmt"
 	"math/rand"
 	"net"
+	"strconv"
 	"time"
 )
 
@@ -161,7 +161,7 @@ func (socket *ftpPassiveSocket) waitForOpenSocket() bool {
 func (socket *ftpPassiveSocket) netListenerInRange(min, max int) (*net.TCPListener, error) {
 	for retries := 1; retries < 100; retries++ {
 		port := randomPort(min, max)
-		l, err := net.Listen("tcp", fmt.Sprintf("%s:%d", socket.Host(), port))
+		l, err := net.Listen("tcp", net.JoinHostPort(socket.Host(), strconv.Itoa(port)))
 		if err == nil {
 			return l.(*net.TCPListener), nil
 		}
