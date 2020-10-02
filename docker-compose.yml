@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   dev:
-    image: golang:1.12.8-buster
+    image: golang:1.15.2-buster
     volumes:
       - .:/work
       - graval-mod:/go/pkg/mod/
