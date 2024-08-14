@@ -1,4 +1,4 @@
-module github.com/yob/graval
+module github.com/New-Boundary-Technologies/graval
 
 go 1.12
 

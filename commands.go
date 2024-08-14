@@ -495,6 +495,7 @@ func (cmd commandQuit) RequireAuth() bool {
 }
 
 func (cmd commandQuit) Execute(conn *ftpConn, param string) {
+	conn.writeMessage(221, "Goodbye")
 	conn.Close()
 }
 
